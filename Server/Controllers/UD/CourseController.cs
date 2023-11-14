@@ -43,7 +43,7 @@ namespace OCTOBER.Server.Controllers.UD
                 CourseDTO? result = await _context
                     .Courses
                     .Where(x => x.CourseNo == CourseNo)
-                    .Where(x=>x.SchoolId == SchoolID) 
+                    .Where(x => x.SchoolId == SchoolID)
                      .Select(sp => new CourseDTO
                      {
                          Cost = sp.Cost,
@@ -53,7 +53,8 @@ namespace OCTOBER.Server.Controllers.UD
                          Description = sp.Description,
                          ModifiedBy = sp.ModifiedBy,
                          ModifiedDate = sp.ModifiedDate,
-                         Prerequisite = sp.Prerequisite
+                         Prerequisite = sp.Prerequisite,
+                         SchoolID = sp.SchoolId
                      })
                 .SingleOrDefaultAsync();
 
@@ -85,7 +86,8 @@ namespace OCTOBER.Server.Controllers.UD
                     Description = sp.Description,
                     ModifiedBy = sp.ModifiedBy,
                     ModifiedDate = sp.ModifiedDate,
-                    Prerequisite = sp.Prerequisite
+                    Prerequisite = sp.Prerequisite,
+                    SchoolID = sp.SchoolId
                 })
                 .ToListAsync();
                 await _context.Database.RollbackTransactionAsync();
@@ -105,6 +107,7 @@ namespace OCTOBER.Server.Controllers.UD
         public async Task<IActionResult> Post([FromBody]
                                                 CourseDTO _CourseDTO)
         {
+            Debugger.Launch();
             try
             {
                 await _context.Database.BeginTransactionAsync();
@@ -118,7 +121,8 @@ namespace OCTOBER.Server.Controllers.UD
                         Cost = _CourseDTO.Cost,
                         CourseNo = _CourseDTO.CourseNo,
                         Description = _CourseDTO.Description,
-                        Prerequisite = _CourseDTO.Prerequisite
+                        Prerequisite = _CourseDTO.Prerequisite,
+                         SchoolId = _CourseDTO.SchoolID
                     };
                     _context.Courses.Add(c);
                     await _context.SaveChangesAsync();
@@ -169,8 +173,8 @@ namespace OCTOBER.Server.Controllers.UD
 
 
         [HttpDelete]
-        [Route("Delete/{CourseNo}")]
-        public async Task<IActionResult> Delete(int CourseNo)
+        [Route("Delete/{SchoolID}/{CourseNo}")]
+        public async Task<IActionResult> Delete(int SchoolID, int CourseNo)
         {
 
             Debugger.Launch();
@@ -179,7 +183,10 @@ namespace OCTOBER.Server.Controllers.UD
             {
                 await _context.Database.BeginTransactionAsync();
 
-                var itm = await _context.Courses.Where(x => x.CourseNo == CourseNo).FirstOrDefaultAsync();
+
+                var itm = await _context.Courses
+                    .Where(x => x.SchoolId == SchoolID)
+                    .Where(x => x.CourseNo == CourseNo).FirstOrDefaultAsync();
 
                 if (itm != null)
                 {
@@ -199,6 +206,11 @@ namespace OCTOBER.Server.Controllers.UD
         }
 
         public Task<IActionResult> Get(int KeyVal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IActionResult> Delete(int KeyVal)
         {
             throw new NotImplementedException();
         }
