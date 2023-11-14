@@ -122,7 +122,7 @@ namespace OCTOBER.Server.Controllers.UD
                         CourseNo = _CourseDTO.CourseNo,
                         Description = _CourseDTO.Description,
                         Prerequisite = _CourseDTO.Prerequisite,
-                         SchoolId = _CourseDTO.SchoolID
+                        SchoolId = _CourseDTO.SchoolID
                     };
                     _context.Courses.Add(c);
                     await _context.SaveChangesAsync();
@@ -205,14 +205,70 @@ namespace OCTOBER.Server.Controllers.UD
             }
         }
 
-        public Task<IActionResult> Get(int KeyVal)
+        [HttpDelete]
+        [Route("Delete/{SchoolID}")]
+        public async Task<IActionResult> Delete(int SchoolID)
         {
-            throw new NotImplementedException();
-        }
+            Debugger.Launch();
 
-        public Task<IActionResult> Delete(int KeyVal)
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+
+
+                var itm = await _context.Courses
+                    .Where(x => x.SchoolId == SchoolID).FirstOrDefaultAsync();
+
+                if (itm != null)
+                {
+                    _context.Courses.Remove(itm);
+                }
+                await _context.SaveChangesAsync();
+                await _context.Database.CommitTransactionAsync();
+
+                return Ok();
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
+        }
+        [HttpGet]
+        [Route("Get/{SchoolID}")]
+        public async Task<IActionResult> Get(int SchoolID)
         {
-            throw new NotImplementedException();
+            try
+            {
+                await _context.Database.BeginTransactionAsync();
+
+                CourseDTO? result = await _context
+                    .Courses
+                    .Where(x => x.SchoolId == SchoolID)
+                     .Select(sp => new CourseDTO
+                     {
+                         Cost = sp.Cost,
+                         CourseNo = sp.CourseNo,
+                         CreatedBy = sp.CreatedBy,
+                         CreatedDate = sp.CreatedDate,
+                         Description = sp.Description,
+                         ModifiedBy = sp.ModifiedBy,
+                         ModifiedDate = sp.ModifiedDate,
+                         Prerequisite = sp.Prerequisite,
+                         SchoolID = sp.SchoolId
+                     })
+                .SingleOrDefaultAsync();
+
+                await _context.Database.RollbackTransactionAsync();
+                return Ok(result);
+            }
+            catch (Exception Dex)
+            {
+                await _context.Database.RollbackTransactionAsync();
+                //List<OraError> DBErrors = ErrorHandling.TryDecodeDbUpdateException(Dex, _OraTranslateMsgs);
+                return StatusCode(StatusCodes.Status417ExpectationFailed, "An Error has occurred");
+            }
         }
     }
 }
