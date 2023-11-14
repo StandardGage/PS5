@@ -30,9 +30,9 @@ namespace OCTOBER.Server.Controllers.UD
         }
 
         [HttpGet]
-        [Route("Get/{SchoolID}/{LetterGrade}")]
+        [Route("Get/{SchoolId}/{LetterGrade}")]
         //  Route for this is....  <URL>/api/GradeConversion/Get/10
-        public async Task<IActionResult> Get(int SchoolID, string LetterGrade)
+        public async Task<IActionResult> Get(int SchoolId, string LetterGrade)
         {
             try
             {
@@ -41,7 +41,7 @@ namespace OCTOBER.Server.Controllers.UD
                 GradeConversionDTO? result = await _context
                     .GradeConversions
                     .Where(x => x.LetterGrade == LetterGrade)
-                    .Where(x => x.SchoolId == SchoolID)
+                    .Where(x => x.SchoolId == SchoolId)
                      .Select(sp => new GradeConversionDTO
                      {
                          SchoolId = sp.SchoolId,
@@ -174,8 +174,8 @@ namespace OCTOBER.Server.Controllers.UD
 
 
         [HttpDelete]
-        [Route("Delete/{SchoolID}/{GradeConversionNo}")]
-        public async Task<IActionResult> Delete(int SchoolID, string LetterGrade)
+        [Route("Delete/{SchoolId}/{GradeConversionNo}")]
+        public async Task<IActionResult> Delete(int SchoolId, string LetterGrade)
         {
 
             Debugger.Launch();
@@ -186,7 +186,7 @@ namespace OCTOBER.Server.Controllers.UD
 
 
                 var itm = await _context.GradeConversions
-                    .Where(x => x.SchoolId == SchoolID)
+                    .Where(x => x.SchoolId == SchoolId)
                     .Where(x => x.LetterGrade == LetterGrade).FirstOrDefaultAsync();
 
                 if (itm != null)
@@ -207,8 +207,8 @@ namespace OCTOBER.Server.Controllers.UD
         }
 
         [HttpDelete]
-        [Route("Delete/{SchoolID}")]
-        public async Task<IActionResult> Delete(int SchoolID)
+        [Route("Delete/{SchoolId}")]
+        public async Task<IActionResult> Delete(int SchoolId)
         {
             Debugger.Launch();
 
@@ -218,7 +218,7 @@ namespace OCTOBER.Server.Controllers.UD
 
 
                 var itm = await _context.GradeConversions
-                    .Where(x => x.SchoolId == SchoolID).FirstOrDefaultAsync();
+                    .Where(x => x.SchoolId == SchoolId).FirstOrDefaultAsync();
 
                 if (itm != null)
                 {
@@ -237,8 +237,8 @@ namespace OCTOBER.Server.Controllers.UD
             }
         }
         [HttpGet]
-        [Route("Get/{SchoolID}")]
-        public async Task<IActionResult> Get(int SchoolID)
+        [Route("Get/{SchoolId}")]
+        public async Task<IActionResult> Get(int SchoolId)
         {
             try
             {
@@ -246,7 +246,7 @@ namespace OCTOBER.Server.Controllers.UD
 
                 GradeConversionDTO? result = await _context
                     .GradeConversions
-                    .Where(x => x.SchoolId == SchoolID)
+                    .Where(x => x.SchoolId == SchoolId)
                      .Select(sp => new GradeConversionDTO
                      {
                          SchoolId = sp.SchoolId,

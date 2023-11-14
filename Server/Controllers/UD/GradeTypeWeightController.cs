@@ -21,9 +21,9 @@ namespace OCTOBER.Server.Controllers.UD
     [Route("api/[controller]")]
     [ApiController]
 
-    public class CourseController : BaseController, GenericRestController<CourseDTO>
+    public class GradeTypeWeightController : BaseController, GenericRestController<GradeTypeWeightDTO>
     {
-        public CourseController(OCTOBEROracleContext context,
+        public GradeTypeWeightController(OCTOBEROracleContext context,
             IHttpContextAccessor httpContextAccessor,
             IMemoryCache memoryCache)
         : base(context, httpContextAccessor)
@@ -32,29 +32,31 @@ namespace OCTOBER.Server.Controllers.UD
 
 
         [HttpGet]
-        [Route("Get/{SchoolId}/{CourseNo}")]
-        //  Route for this is....  <URL>/api/Course/Get/10
-        public async Task<IActionResult> Get(int SchoolId, int CourseNo)
+        [Route("Get/{SchoolId}/{SectionId}")]
+        //  Route for this is....  <URL>/api/GradeTypeWeight/Get/10
+        public async Task<IActionResult> Get(int SchoolId, int SectionId)
         {
             try
             {
                 await _context.Database.BeginTransactionAsync();
 
-                CourseDTO? result = await _context
-                    .Courses
-                    .Where(x => x.CourseNo == CourseNo)
+                GradeTypeWeightDTO? result = await _context
+                    .GradeTypeWeights
+                    .Where(x => x.SectionId == SectionId)
                     .Where(x => x.SchoolId == SchoolId)
-                     .Select(sp => new CourseDTO
+                     .Select(sp => new GradeTypeWeightDTO
                      {
-                         Cost = sp.Cost,
-                         CourseNo = sp.CourseNo,
+                         SchoolId = sp.SchoolId,
+                         SectionId = sp.SectionId,
+                         GradeTypeCode = sp.GradeTypeCode,
+                         NumberPerSection = sp.NumberPerSection,
+                         PercentOfFinalGrade = sp.PercentOfFinalGrade,
+                         DropLowest = sp.DropLowest,
                          CreatedBy = sp.CreatedBy,
                          CreatedDate = sp.CreatedDate,
-                         Description = sp.Description,
                          ModifiedBy = sp.ModifiedBy,
-                         ModifiedDate = sp.ModifiedDate,
-                         Prerequisite = sp.Prerequisite,
-                         SchoolId = sp.SchoolId
+                         ModifiedDate = sp.ModifiedDate
+
                      })
                 .SingleOrDefaultAsync();
 
@@ -77,17 +79,18 @@ namespace OCTOBER.Server.Controllers.UD
             {
                 await _context.Database.BeginTransactionAsync();
 
-                var result = await _context.Courses.Select(sp => new CourseDTO
+                var result = await _context.GradeTypeWeights.Select(sp => new GradeTypeWeightDTO
                 {
-                    Cost = sp.Cost,
-                    CourseNo = sp.CourseNo,
+                    SchoolId = sp.SchoolId,
+                    SectionId = sp.SectionId,
+                    GradeTypeCode = sp.GradeTypeCode,
+                    NumberPerSection = sp.NumberPerSection,
+                    PercentOfFinalGrade = sp.PercentOfFinalGrade,
+                    DropLowest = sp.DropLowest,
                     CreatedBy = sp.CreatedBy,
                     CreatedDate = sp.CreatedDate,
-                    Description = sp.Description,
                     ModifiedBy = sp.ModifiedBy,
-                    ModifiedDate = sp.ModifiedDate,
-                    Prerequisite = sp.Prerequisite,
-                    SchoolId = sp.SchoolId
+                    ModifiedDate = sp.ModifiedDate
                 })
                 .ToListAsync();
                 await _context.Database.RollbackTransactionAsync();
@@ -105,26 +108,28 @@ namespace OCTOBER.Server.Controllers.UD
         [HttpPost]
         [Route("Post")]
         public async Task<IActionResult> Post([FromBody]
-                                                CourseDTO _CourseDTO)
+                                                GradeTypeWeightDTO _GradeTypeWeightDTO)
         {
             Debugger.Launch();
             try
             {
                 await _context.Database.BeginTransactionAsync();
 
-                var itm = await _context.Courses.Where(x => x.CourseNo == _CourseDTO.CourseNo).FirstOrDefaultAsync();
+                var itm = await _context.GradeTypeWeights.Where(x => x.SectionId == _GradeTypeWeightDTO.SectionId).FirstOrDefaultAsync();
 
                 if (itm == null)
                 {
-                    Course c = new Course
+                    GradeTypeWeight c = new GradeTypeWeight
                     {
-                        Cost = _CourseDTO.Cost,
-                        CourseNo = _CourseDTO.CourseNo,
-                        Description = _CourseDTO.Description,
-                        Prerequisite = _CourseDTO.Prerequisite,
-                        SchoolId = _CourseDTO.SchoolId
+                        SchoolId = _GradeTypeWeightDTO.SchoolId,
+                        SectionId = _GradeTypeWeightDTO.SectionId,
+                        GradeTypeCode = _GradeTypeWeightDTO.GradeTypeCode,
+                        NumberPerSection = _GradeTypeWeightDTO.NumberPerSection,
+                        PercentOfFinalGrade = _GradeTypeWeightDTO.PercentOfFinalGrade,
+                        DropLowest = _GradeTypeWeightDTO.DropLowest,
+                        
                     };
-                    _context.Courses.Add(c);
+                    _context.GradeTypeWeights.Add(c);
                     await _context.SaveChangesAsync();
                     await _context.Database.CommitTransactionAsync();
                 }
@@ -142,7 +147,7 @@ namespace OCTOBER.Server.Controllers.UD
         [HttpPut]
         [Route("Put")]
         public async Task<IActionResult> Put([FromBody]
-                                                CourseDTO _CourseDTO)
+                                                GradeTypeWeightDTO _GradeTypeWeightDTO)
         {
 
             Debugger.Launch();
@@ -151,13 +156,13 @@ namespace OCTOBER.Server.Controllers.UD
             {
                 await _context.Database.BeginTransactionAsync();
 
-                var itm = await _context.Courses.Where(x => x.CourseNo == _CourseDTO.CourseNo).FirstOrDefaultAsync();
+                var itm = await _context.GradeTypeWeights.Where(x => x.SectionId == _GradeTypeWeightDTO.SectionId).FirstOrDefaultAsync();
 
-                itm.Description = _CourseDTO.Description;
-                itm.Cost = _CourseDTO.Cost;
-                itm.Prerequisite = _CourseDTO.Prerequisite;
+                itm.NumberPerSection = _GradeTypeWeightDTO.NumberPerSection;
+                itm.PercentOfFinalGrade = _GradeTypeWeightDTO.PercentOfFinalGrade;
+                itm.DropLowest = _GradeTypeWeightDTO.DropLowest;
 
-                _context.Courses.Update(itm);
+                _context.GradeTypeWeights.Update(itm);
                 await _context.SaveChangesAsync();
                 await _context.Database.CommitTransactionAsync();
 
@@ -173,8 +178,8 @@ namespace OCTOBER.Server.Controllers.UD
 
 
         [HttpDelete]
-        [Route("Delete/{SchoolId}/{CourseNo}")]
-        public async Task<IActionResult> Delete(int SchoolId, int CourseNo)
+        [Route("Delete/{SchoolId}/{SectionId}")]
+        public async Task<IActionResult> Delete(int SchoolId, int SectionId)
         {
 
             Debugger.Launch();
@@ -184,13 +189,13 @@ namespace OCTOBER.Server.Controllers.UD
                 await _context.Database.BeginTransactionAsync();
 
 
-                var itm = await _context.Courses
+                var itm = await _context.GradeTypeWeights
                     .Where(x => x.SchoolId == SchoolId)
-                    .Where(x => x.CourseNo == CourseNo).FirstOrDefaultAsync();
+                    .Where(x => x.SectionId == SectionId).FirstOrDefaultAsync();
 
                 if (itm != null)
                 {
-                    _context.Courses.Remove(itm);
+                    _context.GradeTypeWeights.Remove(itm);
                 }
                 await _context.SaveChangesAsync();
                 await _context.Database.CommitTransactionAsync();
@@ -216,12 +221,12 @@ namespace OCTOBER.Server.Controllers.UD
                 await _context.Database.BeginTransactionAsync();
 
 
-                var itm = await _context.Courses
+                var itm = await _context.GradeTypeWeights
                     .Where(x => x.SchoolId == SchoolId).FirstOrDefaultAsync();
 
                 if (itm != null)
                 {
-                    _context.Courses.Remove(itm);
+                    _context.GradeTypeWeights.Remove(itm);
                 }
                 await _context.SaveChangesAsync();
                 await _context.Database.CommitTransactionAsync();
@@ -243,20 +248,21 @@ namespace OCTOBER.Server.Controllers.UD
             {
                 await _context.Database.BeginTransactionAsync();
 
-                CourseDTO? result = await _context
-                    .Courses
+                GradeTypeWeightDTO? result = await _context
+                    .GradeTypeWeights
                     .Where(x => x.SchoolId == SchoolId)
-                     .Select(sp => new CourseDTO
+                     .Select(sp => new GradeTypeWeightDTO
                      {
-                         Cost = sp.Cost,
-                         CourseNo = sp.CourseNo,
+                         SchoolId = sp.SchoolId,
+                         SectionId = sp.SectionId,
+                         GradeTypeCode = sp.GradeTypeCode,
+                         NumberPerSection = sp.NumberPerSection,
+                         PercentOfFinalGrade = sp.PercentOfFinalGrade,
+                         DropLowest = sp.DropLowest,
                          CreatedBy = sp.CreatedBy,
                          CreatedDate = sp.CreatedDate,
-                         Description = sp.Description,
                          ModifiedBy = sp.ModifiedBy,
-                         ModifiedDate = sp.ModifiedDate,
-                         Prerequisite = sp.Prerequisite,
-                         SchoolId = sp.SchoolId
+                         ModifiedDate = sp.ModifiedDate
                      })
                 .SingleOrDefaultAsync();
 
